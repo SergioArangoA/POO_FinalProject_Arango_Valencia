@@ -1,19 +1,21 @@
+package domain;
 import java.util.ArrayList;
-public class ParkingSpot {
+import java.io.Serializable;
+public class ParkingSpot implements Serializable {
     private ArrayList<Vehicle> parkedVehicles = new ArrayList<Vehicle>();
     private String spotName;
     public ParkingSpot(String spotName){
         this.spotName = spotName;
     }
     public float getRemainingSpace(){
-        int totalSpace = 1;
+        float totalSpace = 1;
         for (Vehicle vehicle : parkedVehicles){
             totalSpace -= vehicle.getSpace();
         }
         return totalSpace;
     }
     public void addVehicle(Vehicle vehicle){
-        if (getRemainingSpace()+vehicle.getSpace() <= 1){
+        if (getRemainingSpace()-vehicle.getSpace() >= 0){
             parkedVehicles.add(vehicle);
         }
     }

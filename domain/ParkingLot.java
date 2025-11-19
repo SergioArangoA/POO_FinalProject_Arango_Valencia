@@ -1,5 +1,7 @@
+package domain;
 import java.util.ArrayList;
-public class ParkingLot {
+import java.io.Serializable;
+public class ParkingLot implements Serializable {
     private ArrayList<ParkingSpot> spotList = new ArrayList<ParkingSpot>();
     private int motorcycleCostPerHour;
     private int motorcyclePerSpotAmount;
@@ -93,26 +95,29 @@ public class ParkingLot {
         return null;
     }
 
-
-
-
-
     public void setCarCostPerHour(int cost){
         this.carCostPerHour = cost;
     }
     public int getCarCostPerHour(){
-        return carCostPerHour;
+        return this.carCostPerHour;
     }
     public void setMotorcycleCostPerHour(int cost){
         this.motorcycleCostPerHour = cost;
     }
     public int getMotorcycleCostPerHour(){
-        return motorcycleCostPerHour;
+        return this.motorcycleCostPerHour;
     }
     public void setMotorcyclePerSpotAmount(int amount){
         this.motorcyclePerSpotAmount = amount;
+        for (ParkingSpot spot: spotList){
+            for(Vehicle vehicle: spot.getVehicleList()){
+                if (vehicle.getVehicleType().equalsIgnoreCase("Motorcycle")){
+                    vehicle.setSpace(amount);
+                }
+            }
+        }
     }
     public int getMotorcyclePerSpotAmount(){
-        return motorcyclePerSpotAmount;
+        return this.motorcyclePerSpotAmount;
     }
 }

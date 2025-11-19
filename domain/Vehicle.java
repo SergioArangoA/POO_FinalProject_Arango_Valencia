@@ -1,27 +1,29 @@
+package domain;
 import java.time.Duration;
 import java.time.LocalDateTime;
-public class Vehicle{
+import java.io.Serializable;
+public class Vehicle implements Serializable{
     private  final LocalDateTime ARRIVAL_TIME;
     private final String LICENSE_PLATE;
     private final String VEHICLE_TYPE;
-    private final float SPACE;
+    private float space;
     private final int TICKET_PRICE;
-    public Vehicle(String LicensePlate, char VehicleType){
+    public Vehicle(String LicensePlate, char VehicleType, int motorcyclePerSpotAmount,int motorcycleCostPerHour, int vehicleCostPerHour){
         this.ARRIVAL_TIME = LocalDateTime.now();
         this.LICENSE_PLATE = LicensePlate;
         if (VehicleType == 'm'){
             this.VEHICLE_TYPE = "Motorcycle";
-            this.SPACE = 1/3; //Change to customizable later
-            this.TICKET_PRICE = 1; //Change to customizable later
+            this.space = 1f/motorcyclePerSpotAmount;
+            this.TICKET_PRICE = motorcycleCostPerHour;
         }
         else if(VehicleType == 'c'){
             this.VEHICLE_TYPE = "Car";
-            this.SPACE = 1;
-            this.TICKET_PRICE = 2; //Change to customizable later
+            this.space = (float) 1;
+            this.TICKET_PRICE = vehicleCostPerHour;
         }
-        else{ //This one shouldn't be ever activated. Must validate that it's a valid vehicle type beforehand
-            this.VEHICLE_TYPE = "Unknown"; 
-            this.SPACE = 1;
+        else{
+            this.VEHICLE_TYPE = "Unknown";
+            this.space = (float) 1;
             this.TICKET_PRICE = 2;
         }
     }
@@ -33,7 +35,10 @@ public class Vehicle{
         return TICKET_PRICE * (ParkedTime+1);
     }
     public float getSpace(){
-        return SPACE;
+        return space;
+    }
+    public void setSpace(int newSpace){
+        this.space = (float) 1f/newSpace;
     }
     public String getLicensePlate(){
         return LICENSE_PLATE;
