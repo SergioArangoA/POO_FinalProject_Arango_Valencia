@@ -1,5 +1,6 @@
 package domain;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.io.Serializable;
 
 /**A ParkingLot instance represents the whole system of parkingspots and vehicles inside the building.
@@ -8,10 +9,24 @@ import java.io.Serializable;
  * motorcycleCostPerHour(int): represents the price that each hour parked will cost to a motorcycle
  */
 public class ParkingLot implements Serializable {
-    private ArrayList<ParkingSpot> spotList = new ArrayList<ParkingSpot>();
+    private ArrayList<ParkingSpot> spotList;
     private int motorcycleCostPerHour;
     private int motorcyclePerSpotAmount;
     private int carCostPerHour;
+    private String csvFilename;
+
+    public ParkingLot(int motorcyclePerSpotAmount, int motorcycleCostPerHour, int carCostPerHour,String csvFilename){
+        if (motorcyclePerSpotAmount >= 0 && motorcycleCostPerHour >= 0 && carCostPerHour >= 0){
+            this.motorcyclePerSpotAmount = motorcyclePerSpotAmount;
+            this.motorcycleCostPerHour = motorcycleCostPerHour;
+            this.carCostPerHour = carCostPerHour;
+        }
+        else{
+            throw new IllegalArgumentException("The motorcycle per spot amount, car and motorcycle cost per hour must be positive or equal to zero");
+        }
+        this.csvFilename = csvFilename;
+        this.spotList = new ArrayList<ParkingSpot>();
+    }
     
     public ArrayList<ParkingSpot> getAvailableSpots(float spaceNeeded){
         ArrayList<ParkingSpot> availableSpotsList = new ArrayList<ParkingSpot>();
@@ -55,7 +70,7 @@ public class ParkingLot implements Serializable {
                 }
             }
         }
-        return null;
+        throw new NoSuchElementException("Couldn't locate a spot with enough space for that vehicle type");
     }
     public int getOccupiedSpotsAmount(){
         int occupiedSpotsAmount = 0;
@@ -69,15 +84,15 @@ public class ParkingLot implements Serializable {
     public ArrayList<ParkingSpot> getSpotList(){
         return spotList;
     }
-    public Vehicle searchVehicle(String licensePlate){
+    public ParkingSpot searchVehicleSpot(String licensePlate){
         for (ParkingSpot spot : spotList){
             for(Vehicle vehicle : spot.getVehicleList()){
                 if (licensePlate.equalsIgnoreCase(vehicle.getLicensePlate())){
-                    return vehicle;
+                    return spot;
                 }
             }
         }
-        return null;
+        throw new NoSuchElementException("Couldn't locate a car with that license plate");
     }
 
     public void removeSpot(String spotName){
@@ -98,7 +113,7 @@ public class ParkingLot implements Serializable {
                 return spot;
             }
         }
-        return null;
+        throw new NoSuchElementException("Couldn't locate a parking spot with that name");
     }
 
     public void setCarCostPerHour(int cost){
@@ -125,5 +140,11 @@ public class ParkingLot implements Serializable {
     }
     public int getMotorcyclePerSpotAmount(){
         return this.motorcyclePerSpotAmount;
+    }
+    public void setCSVFileName(String name){
+        this.csvFilename = name;
+    }
+    public String getCSVFileName(){
+        return csvFilename;
     }
 }

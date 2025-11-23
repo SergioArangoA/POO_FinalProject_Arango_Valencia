@@ -1,21 +1,30 @@
 package data;
-
-import domain.Vehicle;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import domain.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class CSVManagement {
-    private static final String CSV_FILE = "tickets.csv";
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
+public class DataManager{
+     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    public static void saveParkingLot(ParkingLot parking) throws IOException {
+        try (ObjectOutputStream save = new ObjectOutputStream(new FileOutputStream("ParkingData.data"))) {
+            save.writeObject(parking);
+        } catch (IOException e) {
+            throw new IOException("There was an error during the saving process, couldn't save properly the changes made");
+        }
+    }
+
+    public static ParkingLot loadParkingLot() throws IOException {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream("ParkingData.data"))) {
+            return (ParkingLot) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new IOException("Couldn't find the parkinglot file");
+        }
+    }
     // Método para guardar un ticket de un vehículo
-    public static void saveTicket(Vehicle vehicle) {
+    public static void saveTicket(Vehicle vehicle, String csvFileName) {
+        csvFileName += ".csv";
         LocalDateTime exitTime = LocalDateTime.now(); // Momento de salida
         int totalPrice = vehicle.getTicket();
         int hoursParked = vehicle.getHoursParked(); // Horas totales de parqueo
@@ -35,9 +44,9 @@ public class CSVManagement {
         );
 
         // Escribir en archivo CSV (agrega si ya existe)
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(CSV_FILE, true))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(csvFileName, true))) {
             // Si el archivo está vacío, escribir encabezado
-            if (new java.io.File(CSV_FILE).length() == 0) {
+            if (new java.io.File(csvFileName).length() == 0) {
                 bw.write("VehicleType,LicensePlate,TotalPrice,ArrivalTime,DepartureTime,HoursParked");
                 bw.newLine();
             }
@@ -49,10 +58,10 @@ public class CSVManagement {
         }
     }
     
-    public static int getTotalEarnings() {
+    public static int getTotalEarnings(String csvFileName) throws FileNotFoundException {
         int totalEarnings = 0;
 
-        try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFileName))) {
             String line;
             boolean firstLine = true;
 
@@ -71,15 +80,11 @@ public class CSVManagement {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new FileNotFoundException("Couldn't find the csv file that you're trying to read");
         }
 
         return totalEarnings;
     }
 
 
-    public static void main(String[] args) {
-        int ganancias = getTotalEarnings();
-        System.out.println("Ganancias totales: $" + ganancias);
-    }
 }

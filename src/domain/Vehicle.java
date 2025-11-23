@@ -8,7 +8,7 @@ public class Vehicle implements Serializable{
     private final String VEHICLE_TYPE;
     private float space;
     private final int TICKET_PRICE;
-    public Vehicle(String LicensePlate, char VehicleType, int motorcyclePerSpotAmount,int motorcycleCostPerHour, int vehicleCostPerHour){
+    public Vehicle(String LicensePlate, char VehicleType, int motorcyclePerSpotAmount,int motorcycleCostPerHour, int carCostPerHour){
         this.ARRIVAL_TIME = LocalDateTime.now();
         this.LICENSE_PLATE = LicensePlate;
         if (VehicleType == 'm'){
@@ -19,12 +19,10 @@ public class Vehicle implements Serializable{
         else if(VehicleType == 'c'){
             this.VEHICLE_TYPE = "Car";
             this.space = (float) 1;
-            this.TICKET_PRICE = vehicleCostPerHour;
+            this.TICKET_PRICE = carCostPerHour;
         }
         else{
-            this.VEHICLE_TYPE = "Unknown";
-            this.space = (float) 1;
-            this.TICKET_PRICE = 2;
+            throw new IllegalArgumentException("Invalid vehicle type, it must be either 'c' or 'm");
         }
     }
     public int getTicketPrice(){
