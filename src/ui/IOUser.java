@@ -44,4 +44,7 @@ public abstract class IOUser {
      - @return A valid double.
      */
     public abstract double readDouble(String prompt);
-}
+
+    
+    public abstract char readChar(String prompt);
+  }
