@@ -81,20 +81,21 @@ public class ParkingMenu {
      - Sub-menu for vehicle operations.
      */
     private void handleVehicleManagement() {
+        while (true) {
         io.writeLine("\n--- GESTIÓN DE VEHÍCULOS ---");
         io.writeLine("1. Ingresar Vehículo");
         io.writeLine("2. Retirar Vehículo");
         io.writeLine("3. Buscar Vehículo");
-        io.writeLine("4. Volver");
+        io.writeLine("4. Volver al menú principal");
 
         int option = io.readInt("Seleccione:");
 
         switch (option) {
-            case 1:
-                addVehicleFlow();
-                break;
-            case 2:
-                removeVehicleFlow();
+                case 1:
+                    addVehicleFlow();
+                    break;
+                case 2:
+                    removeVehicleFlow();
                 break;
             case 3:
                 searchVehicleFlow();
@@ -105,37 +106,41 @@ public class ParkingMenu {
                 io.writeLine("Opción inválida.");
         }
     }
+    }
 
     /**
      - Handles the logic to add a vehicle.
      */
     private void addVehicleFlow() {
         io.writeLine("--- Ingreso de Vehículo ---");
-        try {
+       try {
             // Get data from user 
             String plate = io.readLine("Ingrese Placa:");
             char typeChar = io.readChar("Tipo de Vehículo (c = Carro, m = Moto):");
             
             typeChar = Character.toLowerCase(typeChar);
+            try{
+                parkingLot.searchVehicleSpot(plate);
+                io.writeLine("Error, el carro ya existe");
 
-            // Create Vehicle object
-            Vehicle newVehicle = new Vehicle(
+            }
+            catch(NoSuchElementException e){
+                Vehicle newVehicle = new Vehicle(
                 plate, 
                 typeChar, 
                 parkingLot.getMotorcyclePerSpotAmount(), 
                 parkingLot.getMotorcycleCostPerHour(), 
-                parkingLot.getCarCostPerHour()
-            );
+                parkingLot.getCarCostPerHour());
+                // Get recommended spot
+                ParkingSpot spot = parkingLot.getRecommendedSpot(typeChar);
 
-            // Get recommended spot 
-            ParkingSpot spot = parkingLot.getRecommendedSpot(typeChar);
+                // Add vehicle to the spot 
+                spot.addVehicle(newVehicle);
 
-            // Add vehicle to the spot 
-            spot.addVehicle(newVehicle);
+                io.writeLine("ÉXITO: Vehículo agregado en el espacio: " + spot.getSpotName());
 
-            io.writeLine("ÉXITO: Vehículo agregado en el espacio: " + spot.getSpotName());
-
-            saveState();
+                saveState();
+            }
 
         } catch (IllegalArgumentException e) {
             io.writeLine("Error: Tipo de vehículo inválido o datos incorrectos. Use 'c' o 'm'.");
@@ -205,6 +210,7 @@ public class ParkingMenu {
     // SPOT MANAGEMENT METHODS 
 
     private void handleSpotManagement() {
+        while(true){
         io.writeLine("\n--- GESTIÓN DE ESPACIOS ---");
         io.writeLine("1. Ver espacios disponibles");
         io.writeLine("2. Ver ocupación general");
@@ -240,9 +246,15 @@ public class ParkingMenu {
                 break;
             case 4:
                 String newName = io.readLine("Nombre del nuevo espacio (ej: B05):");
-                parkingLot.createSpot(newName);
-                io.writeLine("Espacio creado exitosamente.");
-                saveState();
+                try{
+                    parkingLot.searchSpot(newName);
+                    io.writeLine("ERROR: Ya existe un espacio con ese nombre");
+                }
+                catch(NoSuchElementException e){
+                    parkingLot.createSpot(newName);
+                    io.writeLine("Espacio creado exitosamente.");
+                    saveState();
+                }
                 break;
             case 5:
                 String delName = io.readLine("Nombre del espacio a eliminar:");
@@ -253,13 +265,15 @@ public class ParkingMenu {
             case 6: 
                 return;
         }
+    }     
     }
 
     // REPORTS AND CSV METHODS 
 
     private void handleReports() {
+        while(true){
         io.writeLine("\n--- REPORTES Y CSV ---");
-        io.writeLine("Archivo CSV actual: " + parkingLot.getCSVFileName() + ".csv");
+        io.writeLine("Archivo CSV actual: " + parkingLot.getCSVFileName());
         io.writeLine("1. Ver ganancias totales (Leer CSV)");
         io.writeLine("2. Cambiar nombre del archivo CSV");
         io.writeLine("3. Volver");
@@ -269,7 +283,7 @@ public class ParkingMenu {
         try {
             switch (option) {
                 case 1:
-                    String csvName = parkingLot.getCSVFileName() + ".csv";
+                    String csvName = parkingLot.getCSVFileName();
                     try {
                         int total = DataManager.getTotalEarnings(csvName);
                         io.writeLine("Ganancias históricas totales: $" + total);
@@ -290,10 +304,12 @@ public class ParkingMenu {
             io.writeLine("Error al generar reportes. Verifique los datos.");
         }
     }
+    }
 
     // CONFIGURATION METHODS
 
     private void handleConfiguration() {
+        while(true){
         io.writeLine("\n--- CONFIGURACIÓN ---");
         io.writeLine("1. Modificar Tarifa Carro (Actual: " + parkingLot.getCarCostPerHour() + ")");
         io.writeLine("2. Modificar Tarifa Moto (Actual: " + parkingLot.getMotorcycleCostPerHour() + ")");
@@ -325,7 +341,7 @@ public class ParkingMenu {
             io.writeLine("Error: Los valores de costo deben ser positivos.");
         }
     }
-
+    }
     /**
      - Helper method to save the system state.
      */
