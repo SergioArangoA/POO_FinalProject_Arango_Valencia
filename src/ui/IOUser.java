@@ -37,14 +37,11 @@ public abstract class IOUser {
      - @return A valid integer.
      */
     public abstract int readInt(String prompt);
-
     /**
-     - Abstract method. Reads a valid double from the user.
-     - @param prompt The message to show the user (e.g., "Enter rate:").
-     - @return A valid double.
+     - Abstract method. Reads a single character (char) from the user.
+     - @param prompt The message to show the user (e.g., "Enter vehicle type (c/m):").
+     - @return A single character.
      */
-    public abstract double readDouble(String prompt);
-
     
     public abstract char readChar(String prompt);
   }
