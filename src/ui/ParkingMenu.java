@@ -7,26 +7,38 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 /**
- - Controller for the User Interface and The logic between User and Domain 
+ - Controller class for the User Interface.
+ - This class acts as the bridge between the user (UI) and the business logic (Domain).
+
  */
 public class ParkingMenu {
 
     private final IOUser io;
     private final ParkingLot parkingLot;
 
+    /**
+     - Constructor using Dependency.
+     - @param io The input/output handler 
+     - @param parkingLot The main system logic 
+     */
     public ParkingMenu(IOUser io, ParkingLot parkingLot) {
         this.io = io;
         this.parkingLot = parkingLot;
     }
 
     /**
-     * Displays the main menu loop and handles user navigation.
+     - Displays the main menu loop and handles user navigation.
      */
     public void showMainMenu() {
         boolean isRunning = true;
 
         while (isRunning) {
             io.writeLine("\n--- SMART PARKING SYSTEM ---");
+    
+            int ocupados = parkingLot.getOccupiedSpotsAmount();
+            int disponibles = parkingLot.getAvailableSpotsAmount();
+            io.writeLine("Estado: " + ocupados + " Ocupados | " + disponibles + " Disponibles");
+            io.writeLine("------------------------------");
             io.writeLine("1. Gestión de Vehículos (Entrada/Salida/Buscar)");
             io.writeLine("2. Gestión de Espacios (Crear/Eliminar/Listar)");
             io.writeLine("3. Reportes y Ganancias (CSV)");
@@ -57,15 +69,17 @@ public class ParkingMenu {
                         io.writeLine("Opción no válida.");
                 }
             } catch (Exception e) {
-                // Catch-all for unexpected errors 
-                io.writeLine("Ocurrió un error inesperado en el menú: " + e.getMessage());
+                io.writeLine("Ocurrió un error inesperado en el menú. Por favor intente de nuevo.");
             }
         }
         io.writeLine("Sistema cerrado. ¡Hasta luego!");
     }
 
-    //VEHICLE MANAGEMENT METHODS 
+    // VEHICLE MANAGEMENT METHODS 
 
+    /**
+     - Sub-menu for vehicle operations.
+     */
     private void handleVehicleManagement() {
         io.writeLine("\n--- GESTIÓN DE VEHÍCULOS ---");
         io.writeLine("1. Ingresar Vehículo");
@@ -92,6 +106,9 @@ public class ParkingMenu {
         }
     }
 
+    /**
+     - Handles the logic to add a vehicle.
+     */
     private void addVehicleFlow() {
         io.writeLine("--- Ingreso de Vehículo ---");
         try {
@@ -99,10 +116,9 @@ public class ParkingMenu {
             String plate = io.readLine("Ingrese Placa:");
             char typeChar = io.readChar("Tipo de Vehículo (c = Carro, m = Moto):");
             
-           
             typeChar = Character.toLowerCase(typeChar);
 
-            // Create Vehicle object passing current rates 
+            // Create Vehicle object
             Vehicle newVehicle = new Vehicle(
                 plate, 
                 typeChar, 
@@ -111,7 +127,7 @@ public class ParkingMenu {
                 parkingLot.getCarCostPerHour()
             );
 
-            // Get recommended spot from logic 
+            // Get recommended spot 
             ParkingSpot spot = parkingLot.getRecommendedSpot(typeChar);
 
             // Add vehicle to the spot 
@@ -119,30 +135,27 @@ public class ParkingMenu {
 
             io.writeLine("ÉXITO: Vehículo agregado en el espacio: " + spot.getSpotName());
 
-            // Save changes / 
             saveState();
 
         } catch (IllegalArgumentException e) {
-            // Invalid character or data  
-            io.writeLine("ERROR DE DATOS: " + e.getMessage());
+            io.writeLine("Error: Tipo de vehículo inválido o datos incorrectos. Use 'c' o 'm'.");
         } catch (IllegalStateException e) {
-            // Spot is full  
-            io.writeLine("ERROR DE ESPACIO: " + e.getMessage());
+            io.writeLine("Error: No hay espacio suficiente en el parqueadero para este vehículo.");
         } catch (NoSuchElementException e) {
-            // No spots available
-            io.writeLine("LO SENTIMOS: No hay espacios disponibles para este tipo de vehículo.");
+            io.writeLine("Lo sentimos: No se encontraron espacios disponibles.");
         }
     }
 
+    /**
+     - Handles logic to remove a vehicle and generate the ticket.
+     */
     private void removeVehicleFlow() {
         io.writeLine("--- Retiro de Vehículo ---");
         String plate = io.readLine("Ingrese la placa del vehículo a retirar:");
 
         try {
-            // Find the spot containing the vehicle 
+            // Find spot and vehicle 
             ParkingSpot spot = parkingLot.searchVehicleSpot(plate);
-            
-            // Retrieve the vehicle object 
             Vehicle vehicle = spot.searchVehicle(plate);
 
             // Calculate ticket price 
@@ -153,28 +166,30 @@ public class ParkingMenu {
             // Save ticket to CSV 
             DataManager.saveTicket(vehicle, parkingLot.getCSVFileName());
 
-            // Remove vehicle from memory 
+            // Remove from memory 
             spot.removeVehicle(vehicle);
             io.writeLine("Vehículo retirado y ticket guardado.");
 
-            // Save system state 
             saveState();
 
         } catch (NoSuchElementException e) {
-            io.writeLine("ERROR: El vehículo no se encuentra en el parqueadero."); 
+             io.writeLine("Error: El vehículo con esa placa no se encuentra en el parqueadero."); 
+        } catch (IOException e) { 
+            io.writeLine("Error Crítico: No se pudo guardar el ticket en el archivo CSV. Verifique permisos.");
         }
     }
 
+    /**
+     - Handles searching for a vehicle.
+     */
     private void searchVehicleFlow() {
         io.writeLine("--- Búsqueda de Vehículo ---");
         String plate = io.readLine("Ingrese la placa a buscar:");
 
         try {
-            // Find spot and vehicle 
             ParkingSpot spot = parkingLot.searchVehicleSpot(plate);
             Vehicle vehicle = spot.searchVehicle(plate);
 
-            // Display details 
             io.writeLine("\n--- Vehículo Encontrado ---");
             io.writeLine("Ubicación (Espacio): " + spot.getSpotName());
             io.writeLine("Placa: " + vehicle.getLicensePlate());
@@ -183,25 +198,25 @@ public class ParkingMenu {
             io.writeLine("Costo acumulado actual: $" + vehicle.getTicket());
 
         } catch (NoSuchElementException e) {
-            io.writeLine("El vehículo no se encuentra en el parqueadero.");
+            io.writeLine("Búsqueda fallida: No existe ningún vehículo con esa placa.");
         }
     }
 
-    //SPOT MANAGEMENT METHODS 
+    // SPOT MANAGEMENT METHODS 
 
     private void handleSpotManagement() {
         io.writeLine("\n--- GESTIÓN DE ESPACIOS ---");
         io.writeLine("1. Ver espacios disponibles");
         io.writeLine("2. Ver ocupación general");
-        io.writeLine("3. Agregar un nuevo espacio (Construir)");
-        io.writeLine("4. Eliminar un espacio");
-        io.writeLine("5. Volver");
+        io.writeLine("3. Listar espacios del parquedaero(Espacios y Placas)");
+        io.writeLine("4. Agregar un nuevo espacio (Construir)");
+        io.writeLine("5. Eliminar un espacio");
+        io.writeLine("6. Volver");
 
         int option = io.readInt("Seleccione:");
 
         switch (option) {
             case 1:
-                // Receive ArrayList<String> from Domain 
                 ArrayList<String> available = parkingLot.getAvailableSpotsNames();
                 io.writeLine("Espacios con disponibilidad: " + available);
                 break;
@@ -209,23 +224,38 @@ public class ParkingMenu {
                 io.writeLine("Cantidad de espacios TOTALMENTE llenos: " + parkingLot.getOccupiedSpotsAmount());
                 break;
             case 3:
+                io.writeLine("--- Mapa del Parqueadero ---");
+                // iterate through spots and vehicles to print the full map
+                for (domain.ParkingSpot spot : parkingLot.getSpotList()) {
+                    io.writeLine("Espacio [" + spot.getSpotName() + "]:");
+                    ArrayList<domain.Vehicle> vehicles = spot.getVehicleList();
+                    if (vehicles.isEmpty()) {
+                        io.writeLine("   -> (Vacío)");
+                    } else {
+                        for (domain.Vehicle v : vehicles) {
+                            io.writeLine("   -> Vehículo: " + v.getLicensePlate() + " (" + v.getVehicleType() + ")");
+                        }
+                    }
+                }
+                break;
+            case 4:
                 String newName = io.readLine("Nombre del nuevo espacio (ej: B05):");
                 parkingLot.createSpot(newName);
                 io.writeLine("Espacio creado exitosamente.");
                 saveState();
                 break;
-            case 4:
+            case 5:
                 String delName = io.readLine("Nombre del espacio a eliminar:");
                 parkingLot.removeSpot(delName);
                 io.writeLine("Espacio eliminado (si existía).");
                 saveState();
                 break;
-            case 5: 
+            case 6: 
                 return;
         }
     }
 
-    //REPORTS AND CSV METHODS 
+    // REPORTS AND CSV METHODS 
 
     private void handleReports() {
         io.writeLine("\n--- REPORTES Y CSV ---");
@@ -244,7 +274,7 @@ public class ParkingMenu {
                         int total = DataManager.getTotalEarnings(csvName);
                         io.writeLine("Ganancias históricas totales: $" + total);
                     } catch (IOException e) {
-                        io.writeLine("No se pudo leer el archivo (quizás aun no hay ventas): " + e.getMessage());
+                        io.writeLine("Aviso: No se pudo leer el archivo de ganancias. Quizás aún no hay ventas.");
                     }
                     break;
                 case 2:
@@ -257,11 +287,11 @@ public class ParkingMenu {
                     return;
             }
         } catch (Exception e) {
-            io.writeLine("Error en reportes: " + e.getMessage());
+            io.writeLine("Error al generar reportes. Verifique los datos.");
         }
     }
 
-    //CONFIGURATION METHODS 
+    // CONFIGURATION METHODS
 
     private void handleConfiguration() {
         io.writeLine("\n--- CONFIGURACIÓN ---");
@@ -284,7 +314,6 @@ public class ParkingMenu {
                     break;
                 case 3:
                     int newCapacity = io.readInt("Nueva cantidad de motos por espacio:");
-                    // This updates config and existing vehicles / Esto actualiza configuración y vehículos existentes
                     parkingLot.setMotorcyclePerSpotAmount(newCapacity); 
                     break;
                 case 4:
@@ -293,18 +322,19 @@ public class ParkingMenu {
             io.writeLine("Configuración actualizada.");
             saveState(); 
         } catch (IllegalArgumentException e) {
-            io.writeLine("Error: Valor inválido (debe ser positivo).");
+            io.writeLine("Error: Los valores de costo deben ser positivos.");
         }
     }
 
-    //HELPER TO SAVE STATE 
-    
+    /**
+     - Helper method to save the system state.
+     */
     private void saveState() {
         try {
             DataManager.saveParkingLot(parkingLot);
              io.writeLine("(Autoguardado exitoso)");
         } catch (IOException e) {
-            io.writeLine("¡ALERTA! No se pudo guardar el estado del sistema: " + e.getMessage());
+            io.writeLine("¡ALERTA! No se pudo guardar el estado del sistema. Verifique espacio en disco.");
         }
     }
 }
