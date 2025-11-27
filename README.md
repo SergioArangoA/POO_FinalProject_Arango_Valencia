@@ -76,30 +76,9 @@ Estado: 0 Ocupados | 0 Disponibles
 >> Nombre del nuevo espacio (ej: B05): B05
 Espacio creado exitosamente.
 (Autoguardado exitoso)
-
---- SMART PARKING SYSTEM ---
-Estado: 0 Ocupados | 1 Disponibles
-------------------------------
-1. Gestión de Vehículos (Entrada/Salida/Buscar)
-2. Gestión de Espacios (Crear/Eliminar/Listar)
-3. Reportes y Ganancias (CSV)
-4. Configuración del Sistema
-5. Salir
->> Seleccione una opción: 2
-
---- GESTIÓN DE ESPACIOS ---
-1. Ver espacios disponibles
-2. Ver ocupación general
-3. Listar espacios del parquedaero(Espacios y Placas)
-4. Agregar un nuevo espacio (Construir)
-5. Eliminar un espacio
-6. Volver
->> Seleccione: 4
->> Nombre del nuevo espacio (ej: B05): B06
-Espacio creado exitosamente.
-(Autoguardado exitoso)
-
---- SMART PARKING SYSTEM ---
+```
+### Ejemplo de agregación de vehículos
+````text
 Estado: 0 Ocupados | 2 Disponibles
 ------------------------------
 1. Gestión de Vehículos (Entrada/Salida/Buscar)
@@ -145,14 +124,6 @@ Espacio [B05]:
 Espacio [B06]:
    -> (Vacío)
 
---- SMART PARKING SYSTEM ---
-Estado: 1 Ocupados | 1 Disponibles
-------------------------------
-1. Gestión de Vehículos (Entrada/Salida/Buscar)
-2. Gestión de Espacios (Crear/Eliminar/Listar)
-3. Reportes y Ganancias (CSV)
-4. Configuración del Sistema
-5. Salir
 ```
 
 ### Ejemplo de eliminación de carros
