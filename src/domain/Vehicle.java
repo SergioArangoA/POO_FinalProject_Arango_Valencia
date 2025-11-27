@@ -21,7 +21,6 @@ import java.io.Serializable;
  *     <li>setSpace</li>
  *     <li>getLicensePlate</li>
  *     <li>getArrivalTime</li>
- *     <li>getMinutesParked</li>
  *     <li>getHoursParked</li>
  *     <li>getVehicleType</li>
  * </ul>
@@ -99,12 +98,6 @@ public class Vehicle implements Serializable{
      */
     public LocalDateTime getArrivalTime(){
         return ARRIVAL_TIME;
-    }
-    /**
-     * @return An int with the amount of minutes that the vehicle has been parked inside the spot
-     */
-    public int getMinutesParked(){
-        return (int)(Duration.between(ARRIVAL_TIME, LocalDateTime.now()).toMinutes());
     }
     /**
      * @return An  int with the amount of hours that the vehicle has been parked inside the spot

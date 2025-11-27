@@ -25,7 +25,7 @@ import java.io.Serializable;
  *     <li>getRecommendedSpot</li>
  *     <li>getOccupiedSpotsAmount</li>
  *     <li>searchVehicleSpot</li>
- *     <li>removeSpot/li>
+ *     <li>removeSpot</li>
  *     <li>createSpot</li>
  *     <li>setCarCostPerHour</li>
  *     <li>getCarCostPerHour</li>
@@ -33,7 +33,6 @@ import java.io.Serializable;
  *     <li>getMotorcycleCostPerHour</li>
  *     <li>setMotorcyclePerSpotAmount</li>
  *     <li>getMotorcyclePerSpotAmount</li>
- *     <li>getMinutesParked</li>
  *     <li>setCSVFileName</li>
  *     <li>getCSVFileName</li>
  *      
@@ -115,7 +114,7 @@ public class ParkingLot implements Serializable {
     public ParkingSpot getRecommendedSpot(char vehicleType){
         if (vehicleType == 'm' || vehicleType == 'M'){
             for (ParkingSpot spot: spotList){
-                if (spot.getRemainingSpace() > 0 && spot.getRemainingSpace()>= 1/motorcyclePerSpotAmount){ //looks for a spot that can fit a motorcycle
+                if (spot.getRemainingSpace() > 0 && spot.getRemainingSpace()>= 1f/motorcyclePerSpotAmount){ //looks for a spot that can fit a motorcycle
                     return spot;
                 }
             }
@@ -166,13 +165,18 @@ public class ParkingLot implements Serializable {
     /**
      * Removes a spot from the parkinglot
      * @param spotName a string with the name of the spot
+     * @throws NoSuchElementException if the spot isn't found
      */
     public void removeSpot(String spotName){
+        ParkingSpot spotToRemove = null;
         for (ParkingSpot spot: spotList){
             if (spot.getSpotName().equalsIgnoreCase(spotName)){
-                spotList.remove(spot);
+                spotToRemove = spot;
             }
         }
+        if (spotToRemove == null)
+            throw new NoSuchElementException("Couldn't locate the spot you're trying to remove");
+        spotList.remove(spotToRemove);
     }
     /**
      * Creates a spot in the parkinglot
@@ -259,7 +263,7 @@ public class ParkingLot implements Serializable {
      * @throws IllegalArgumentException if the filename contains special characters
      */
     public void setCSVFileName(String name){
-        if (!csvFilename.matches("[\\w\\- ]+")) {//Checks if the filename is valid, no special characters allowed
+        if (!name.matches("[\\w\\- ]+")) {//Checks if the filename is valid, no special characters allowed
             throw new IllegalArgumentException("Invalid filename with special characters");
         }
         this.csvFilename = name;
