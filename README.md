@@ -153,3 +153,6 @@ TOTAL A PAGAR: $2000
 Vehículo retirado y ticket guardado.
 (Autoguardado exitoso)
 ```
+
+## Diagrama de clases:
+https://github.com/SergioArangoA/POO_FinalProject_Arango_Valencia/blob/main/ClassDiagram.gif
