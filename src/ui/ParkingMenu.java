@@ -208,7 +208,7 @@ public class ParkingMenu {
         io.writeLine("\n--- GESTIÓN DE ESPACIOS ---");
         io.writeLine("1. Ver espacios disponibles");
         io.writeLine("2. Ver ocupación general");
-        io.writeLine("3. Listar espacios del parquedaero(Espacios y Placas)");
+        io.writeLine("3. Listar espacios del parqueadero(Espacios y Placas)");
         io.writeLine("4. Agregar un nuevo espacio (Construir)");
         io.writeLine("5. Eliminar un espacio");
         io.writeLine("6. Volver");
@@ -246,9 +246,14 @@ public class ParkingMenu {
                 break;
             case 5:
                 String delName = io.readLine("Nombre del espacio a eliminar:");
-                parkingLot.removeSpot(delName);
-                io.writeLine("Espacio eliminado (si existía).");
-                saveState();
+                try {
+                    parkingLot.removeSpot(delName);
+                    io.writeLine("Espacio eliminado.");
+                    saveState();
+                }
+                catch (NoSuchElementException e){
+                    io.writeLine("No se encontró el espacio");
+                }
                 break;
             case 6: 
                 return;
